@@ -7,7 +7,7 @@ requires = [
     "torch @ https://download-r2.pytorch.org/whl/cu129/torch-2.10.0%2Bcu129-cp310-cp310-manylinux_2_28_x86_64.whl#sha256=afd73cb16ee6fe7cd86b089822401ca81f587c4425a5e592536e331cfdcece64",
     "ninja>=1.13.0",
     "psutil>=7.2.2",
-    "numpy>=2.4.4"
+    "numpy>=2.2.0"
 ]
 
 
@@ -27,7 +27,7 @@ dependencies = [
     "packaging>=26.0",
     "ninja>=1.13.0",
     "psutil>=7.2.2",
-    "numpy>=2.4.4"
+    "numpy>=2.2.0"
 ]
 
 [tool.setuptools]
