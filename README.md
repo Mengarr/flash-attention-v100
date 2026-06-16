@@ -60,6 +60,23 @@ or
 
 pip install . --no-build-isolation -v
 ```
+
+### Building a cached wheel to /tmp
+
+To build a reusable wheel (e.g. to reinstall after a kernel change without recompiling from
+the install path), build it into `/tmp/wheels` and install from there:
+
+```bash
+# Clean any stale build objects so kernel changes are actually recompiled
+rm -rf build dist *.egg-info
+
+# Build the wheel into /tmp/wheels
+pip wheel . --no-build-isolation --no-cache-dir -w /tmp/wheels
+
+# Install (force-reinstall: the version string doesn't bump, so pip would otherwise
+# keep the previously installed .so even though the wheel is new)
+pip install --force-reinstall --no-deps /tmp/wheels/flash_attn_v100-*.whl
+```
 Also after you can final check ready venv
 
 ```
