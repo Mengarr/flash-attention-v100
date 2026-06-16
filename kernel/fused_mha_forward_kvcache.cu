@@ -346,8 +346,12 @@ void launcher_flash_attention_kvcache(
 
     // Data pointers
     const __half* q_ptr          = reinterpret_cast<const __half*>(Q.data_ptr());
-    const __half* k_new_ptr      = K_new.defined() ? reinterpret_cast<const __half*>(K_new.data_ptr()) : nullptr;
-    const __half* v_new_ptr      = V_new.defined() ? reinterpret_cast<const __half*>(V_new.data_ptr()) : nullptr;
+    // NOTE: when no new K/V is appended, the host wrapper passes torch::empty({0}) — a *defined*
+    // 1-D tensor, so `K_new.defined()` is true. Guard on T_NEW > 0 instead, otherwise K_new.stride(1)
+    // below indexes dim 1 of a 1-D tensor and throws "Dimension out of range".
+    const bool    has_new_kv     = (T_NEW > 0);
+    const __half* k_new_ptr      = has_new_kv ? reinterpret_cast<const __half*>(K_new.data_ptr()) : nullptr;
+    const __half* v_new_ptr      = has_new_kv ? reinterpret_cast<const __half*>(V_new.data_ptr()) : nullptr;
     __half*       k_cache_ptr    = reinterpret_cast<__half*>(K_cache.data_ptr());
     __half*       v_cache_ptr    = reinterpret_cast<__half*>(V_cache.data_ptr());
     __half*       out_ptr        = reinterpret_cast<__half*>(Out.data_ptr());
@@ -369,9 +373,9 @@ void launcher_flash_attention_kvcache(
     const int stride_k_s = K_cache.stride(1);
     const int stride_k_h = K_cache.stride(2);
 
-    const int stride_n_b = K_new.defined() ? K_new.stride(0) : 0;
-    const int stride_n_s = K_new.defined() ? K_new.stride(1) : 0;
-    const int stride_n_h = K_new.defined() ? K_new.stride(2) : 0;
+    const int stride_n_b = has_new_kv ? K_new.stride(0) : 0;
+    const int stride_n_s = has_new_kv ? K_new.stride(1) : 0;
+    const int stride_n_h = has_new_kv ? K_new.stride(2) : 0;
 
     const int stride_o_b = Out.stride(0);
     const int stride_o_s = Out.stride(1);
